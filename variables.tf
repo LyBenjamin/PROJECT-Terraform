@@ -1,0 +1,9 @@
+variable "proxmox_api_url" {}
+variable "proxmox_user" {}
+variable "proxmox_password" {}
+variable "target_node" {}
+variable "template_name" {}
+variable "vm_id" {}
+variable "hostname" {}
+variable "ip_address" {}
+variable "gateway" {}

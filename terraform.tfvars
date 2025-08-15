@@ -1,0 +1,9 @@
+proxmox_api_url = "https://82.96.142.195:28006/api2/json"
+proxmox_user    = "root@pam"
+proxmox_password = "PROXMOX_01!"
+target_node     = "PROXMOX-01"
+template_name   = "ubuntu-22-template"
+vm_id           = 101
+hostname        = "ubuntu-static"
+ip_address      = "192.168.10.217/24"
+gateway         = "192.168.10.254"
