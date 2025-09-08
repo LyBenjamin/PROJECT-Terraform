@@ -1,0 +1,16 @@
+# --- Secrets en clair (NE JAMAIS pousser) ---
+terraform.tfvars
+*.auto.tfvars
+.env
+.vault_pass.txt
+
+# --- Ansible Vault password file ---
+*.vault_pass.txt
+*.ansible_vault_pass.txt
+
+# --- Terraform ertefacts (pas utiles dans git) ---
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+crash.log
+*.tfplan
