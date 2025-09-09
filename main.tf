@@ -1,47 +1,108 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "Telmate/proxmox"
-      version = "2.9.11"
+      source  = "bpg/proxmox"
+      version = "~> 0.50.0"
     }
   }
 }
+
 provider "proxmox" {
-  pm_api_url = var.proxmox_api_url
-  pm_user    = var.proxmox_user
-  pm_password = var.proxmox_password
-  pm_tls_insecure = true
-  pm_timeout = 600
+  endpoint = var.proxmox_api_url
+  username = var.proxmox_user
+  password = var.proxmox_password
+  insecure = true
 }
 
-resource "proxmox_vm_qemu" "static_vm" {
-  name        = var.hostname
-  target_node = var.target_node
-  vmid        = var.vm_id
+# ===== VM 1 : renommée en srv-apache-front (VMID 101) =====
+resource "proxmox_virtual_environment_vm" "static_vm" {
+  name      = var.hostname                  # "srv-apache-front"
+  node_name = var.target_node
+  vm_id     = var.vm_id
 
-  clone       = var.template_name
-  os_type     = "cloud-init"
-  full_clone  = true
+  clone {
+    vm_id = var.template_vm_id
+    full  = true
+  }
 
-  cores       = 2
-  memory      = 2048
-  sockets     = 1
+  cpu {
+    cores   = 2
+    sockets = 1
+  }
 
-  network {
-    model  = "virtio"
+  memory {
+    dedicated = 2048
+  }
+
+  network_device {
     bridge = "vmbr0"
+    model  = "virtio"
   }
 
   disk {
-    size = "10G"
-    type = "scsi"
-    storage = "local-lvm"
-    iothread = 1
+    datastore_id = "local-lvm"
+    interface    = "scsi0"
+    size         = 10
+    file_format  = "raw"
   }
 
-  ipconfig0 = "ip=${var.ip_address},gw=${var.gateway}"
-
-  ciuser     = "ubuntu"
-  cipassword = "ubuntu123"
-
+  initialization {
+    ip_config {
+      ipv4 {
+        address = var.ip_address
+        gateway = var.gateway
+      }
+    }
+    user_account {
+      username = "ubuntu"
+      password = "ubuntu123"
+    }
+  }
 }
+
+# ===== VM 2 : nouvelle srv-mango-bdd (VMID 103, IP .218) =====
+resource "proxmox_virtual_environment_vm" "srv_mango_bdd" {
+  name      = var.hostname_bdd              # "srv-mango-bdd"
+  node_name = var.target_node
+  vm_id     = var.vm_id_bdd
+
+  clone {
+    vm_id = var.template_vm_id
+    full  = true
+  }
+
+  cpu {
+    cores   = 2
+    sockets = 1
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  network_device {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+
+  disk {
+    datastore_id = "local-lvm"
+    interface    = "scsi0"
+    size         = 10
+    file_format  = "raw"
+  }
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = var.ip_address_bdd
+        gateway = var.gateway
+      }
+    }
+    user_account {
+      username = "ubuntu"
+      password = "ubuntu123"
+    }
+  }
+}
+
